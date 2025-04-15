@@ -1,0 +1,17 @@
+{
+    "name": "candidorpneto/internal-registrations-admin",
+    "autoload": {
+        "psr-4": {
+            "Src\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "CandidoRPNeto",
+            "email": "candido.neto@ucsal.edu.br"
+        }
+    ],
+    "require": {
+        "firebase/php-jwt": "^6.11"
+    }
+}
