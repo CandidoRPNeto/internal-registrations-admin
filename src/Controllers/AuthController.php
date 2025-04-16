@@ -14,8 +14,9 @@ class AuthController
     }
     public function login($data): array
     {
+        LoginRequest::validate($data);
         $login = $this->repository->login($data['email'], $data['password']);
-        if (LoginRequest::validate($data) && $login) {
+        if ($login) {
             $_SESSION['token'] = $login['token'];
             return [
                 'code' => 200,

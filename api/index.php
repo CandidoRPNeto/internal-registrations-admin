@@ -17,47 +17,103 @@ $id = $uri[2] ?? null;
 $method = $_SERVER['REQUEST_METHOD'];
 
 
-switch ($route) {
-    case '/api/auth/login':
-        if ($method != 'POST') {
-            http_response_code(405);
-            echo json_encode(['message' => 'Método não permitido']);
-        }
-        $controller = new AuthController();
-        $data = json_decode(file_get_contents("php://input"), true);
-        $response = $controller->login($data);
-        http_response_code($response['code']);
-        echo json_encode($response['data']);
-        break;
-    case '/api/dashboard/quantity':
-        $controller = new DashboardController();
-        $response = $controller->getInfo();
-        http_response_code($response['code']);
-        echo json_encode($response['data']);
-        break;
-    default:
-        getResource($resource, $method, $id);
-}
-function getResource($resource, $method, $id): void
+function handleResponse(): void
 {
+    try {
+        $return = getRoute();
+        http_response_code($return['code']);
+        echo json_encode($return['data']);
+    } catch (\Throwable $th) {
+        http_response_code(500);
+        echo json_encode([
+            'message' => 'Houve um problema no backend',
+            'error' => $th->getMessage()
+        ]);
+        exit;
+    }
+}
+function getRoute()
+{
+    global $route, $method;
+    $cleanRoute = str_replace('/api', '', $route);
+    $response = [];
+    switch ($cleanRoute) {
+        case '/auth/login':
+            if ($method != 'POST') {
+                return [
+                    'code' => 405,
+                    'message' => 'Método não permitido'
+                ];
+            }
+            $controller = new AuthController();
+            $data = json_decode(file_get_contents("php://input"), true);
+            $response = $controller->login($data);
+            break;
+        case '/dashboard/quantity':
+            $controller = new DashboardController();
+            $response = $controller->getInfo();
+            break;
+        default:
+            $response = getResource();
+    }
+    return $response;
+}
+
+function getResource(): array
+{
+    global $resource;
+    $response = [];
     switch ($resource) {
         case 'classroom':
             authMiddleware();
-            crudResource($method, new ClassroomController(), $id);
+            $response = crudResource(new ClassroomController());
             break;
         case 'student':
             authMiddleware();
-            crudResource($method, new StudentController(), $id);
+            $response = crudResource(new StudentController());
             break;
         case 'enrollment':
             authMiddleware();
-            crudResource($method, new EnrollmentsController(), $id);
+            $response = crudResource(new EnrollmentsController());
             break;
         default:
-            http_response_code(404);
-            echo json_encode(['message' => 'Rota não encontrada']);
-            exit;
+            $response = [
+                'code' => 404,
+                'data' => ['message' => 'Rota não encontrada']
+            ];
     }
+    return $response;
+}
+
+function crudResource($controller): array
+{
+    global $method, $id;
+    $response = ['code' => 200];
+    switch ($method) {
+        case 'GET':
+            $page = $_GET['page'] ?? "1";
+            $search = $_GET['search'] ?? false;
+            $filter = $_GET['filter'] ?? false;
+            $response['data'] = $id ? $controller->show($id) : ($search ? $controller->search($page, $search, $filter) : $controller->index($page));
+            break;
+        case 'POST':
+            $data = json_decode(file_get_contents("php://input"), true);
+            $response['data'] = $controller->create($data);
+            break;
+        case 'PUT':
+            $data = json_decode(file_get_contents("php://input"), true);
+            $response['data'] = $controller->update($id, $data);
+            break;
+        case 'DELETE':
+            $response['data'] = $controller->delete($id);
+            break;
+        default:
+            $response = [
+                'code' => 405,
+                'data' => ['message' => 'Método não permitido']
+            ];
+    }
+    return $response;
 }
 
 function authMiddleware(): void
@@ -86,33 +142,4 @@ function authMiddleware(): void
     }
 }
 
-function crudResource($method, $controller, $id): void
-{
-    switch ($method) {
-        case 'GET':
-            $page = $_GET['page'] ?? "1";
-            $search = $_GET['search'] ?? false;
-            $filter = $_GET['filter'] ?? false;
-            $response = $id ? $controller->show($id) : ($search ? $controller->search($page, $search, $filter) : $controller->index($page));
-            echo json_encode($response);
-            break;
-
-        case 'POST':
-            $data = json_decode(file_get_contents("php://input"), true);
-            echo json_encode($controller->create($data));
-            break;
-
-        case 'PUT':
-            $data = json_decode(file_get_contents("php://input"), true);
-            echo json_encode($controller->update($id, $data));
-            break;
-
-        case 'DELETE':
-            echo json_encode($controller->delete($id));
-            break;
-
-        default:
-            http_response_code(405);
-            echo json_encode(['message' => 'Método não permitido']);
-    }
-}
+handleResponse();
