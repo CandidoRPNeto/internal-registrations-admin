@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use Src\Controllers\{AuthController, ClassroomController, StudentController};
+use Src\Controllers\{AuthController, ClassroomController, DashboardController, EnrollmentsController, StudentController};
 use Src\Helpers\JwtHelper;
 
 header("Access-Control-Allow-Origin: *");
@@ -10,15 +10,15 @@ header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
 header("Access-Control-Allow-Headers: Content-Type");
 
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$uri = explode('/', trim($uri, '/'));
-$method = $_SERVER['REQUEST_METHOD'];
-
+$route = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri = explode('/', trim($route, '/'));
 $resource = $uri[1] ?? null;
 $id = $uri[2] ?? null;
+$method = $_SERVER['REQUEST_METHOD'];
 
-switch ($resource) {
-    case 'auth':
+
+switch ($route) {
+    case '/api/auth/login':
         if ($method != 'POST') {
             http_response_code(405);
             echo json_encode(['message' => 'Método não permitido']);
@@ -29,18 +29,35 @@ switch ($resource) {
         http_response_code($response['code']);
         echo json_encode($response['data']);
         break;
-    case 'classroom':
-        authMiddleware();
-        crudResource($method, new ClassroomController(), $id);
-        break;
-    case 'student':
-        authMiddleware();
-        crudResource($method, new StudentController(), $id);
+    case '/api/dashboard/quantity':
+        $controller = new DashboardController();
+        $response = $controller->getInfo();
+        http_response_code($response['code']);
+        echo json_encode($response['data']);
         break;
     default:
-        http_response_code(404);
-        echo json_encode(['message' => 'Rota não encontrada']);
-        exit;
+        getResource($resource, $method, $id);
+}
+function getResource($resource, $method, $id): void
+{
+    switch ($resource) {
+        case 'classroom':
+            authMiddleware();
+            crudResource($method, new ClassroomController(), $id);
+            break;
+        case 'student':
+            authMiddleware();
+            crudResource($method, new StudentController(), $id);
+            break;
+        case 'enrollment':
+            authMiddleware();
+            crudResource($method, new EnrollmentsController(), $id);
+            break;
+        default:
+            http_response_code(404);
+            echo json_encode(['message' => 'Rota não encontrada']);
+            exit;
+    }
 }
 
 function authMiddleware(): void
@@ -73,7 +90,11 @@ function crudResource($method, $controller, $id): void
 {
     switch ($method) {
         case 'GET':
-            echo json_encode($id ? $controller->show($id) : $controller->index());
+            $page = $_GET['page'] ?? "1";
+            $search = $_GET['search'] ?? false;
+            $filter = $_GET['filter'] ?? false;
+            $response = $id ? $controller->show($id) : ($search ? $controller->search($page, $search, $filter) : $controller->index($page));
+            echo json_encode($response);
             break;
 
         case 'POST':

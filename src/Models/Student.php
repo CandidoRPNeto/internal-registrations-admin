@@ -3,18 +3,23 @@ namespace Src\Models;
 
 class Student implements Model
 {
-    
-    public function getTableName(): string{
+
+    public function getTableName(): string
+    {
         return "students";
     }
 
-    public function getFields(): array{
+    public function getFields(): array
+    {
         return [
-
+            'birth_date',
+            'cpf',
+            'user_id'
         ];
     }
-    
-    public function getNameField(): string{
-        return "name";
+
+    public function getOrdenation(): string
+    {
+        return "birth_date DESC";
     }
 }

@@ -7,6 +7,6 @@ interface Model
 
     function getFields(): array;
 
-    function getNameField(): string;
+    function getOrdenation(): string|null;
 
 }

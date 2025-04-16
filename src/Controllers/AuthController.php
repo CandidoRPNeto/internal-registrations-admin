@@ -4,6 +4,7 @@ namespace Src\Controllers;
 use Src\Repository\AuthRepository;
 use Src\Request\LoginRequest;
 
+session_start();
 class AuthController
 {
     protected $repository;
@@ -15,6 +16,7 @@ class AuthController
     {
         $login = $this->repository->login($data['email'], $data['password']);
         if (LoginRequest::validate($data) && $login) {
+            $_SESSION['token'] = $login['token'];
             return [
                 'code' => 200,
                 'data' => $login

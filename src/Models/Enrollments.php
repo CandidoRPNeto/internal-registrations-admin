@@ -1,22 +1,20 @@
 <?php
 namespace Src\Models;
 
-class Classroom implements Model
+class Enrollments implements Model
 {
     
     public function getTableName(): string{
-        return "classrooms";
+        return "enrollments";
     }
 
     public function getFields(): array{
         return [
-            'id',
-            'name',
-            'description'
+
         ];
     }
     
     public function getOrdenation(): string{
-        return "name ASC";
+        return "created_at DESC";
     }
 }

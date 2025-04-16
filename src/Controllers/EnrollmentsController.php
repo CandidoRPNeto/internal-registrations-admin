@@ -1,14 +1,14 @@
 <?php
 namespace Src\Controllers;
 
-use Src\Repository\ClassroomRepository;
+use Src\Repository\EnrollmentsRepository;
 
-class ClassroomController
+class EnrollmentsController
 {
     protected $repository;
     public function __construct()
     {
-        $this->repository = new ClassroomRepository();
+        $this->repository = new EnrollmentsRepository();
     }
 
     public function create($data)
@@ -23,6 +23,16 @@ class ClassroomController
     public function update($id, $data)
     {
         return $this->repository->update($id, $data);
+    }
+
+    public function search($page, $search, $filter = 1)
+    {
+        if ($filter == 1) {
+            $search = ['username' => $search];
+        } else if ($filter == 2) {
+            $search = ['classname' => $search];
+        }
+        return $this->repository->listAll($page, $search);
     }
 
     public function show($id)
