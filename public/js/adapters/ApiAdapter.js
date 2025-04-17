@@ -1,11 +1,11 @@
 class ApiRequest {
-    
+
     constructor(baseUrl = 'http://localhost:8000/api') {
         this.baseUrl = baseUrl;
     }
 
     async request(endpoint, method = 'GET', data = null, need_token = true) {
-        const url = `${this.baseUrl}/${endpoint}`; 
+        const url = `${this.baseUrl}/${endpoint}`;
         const headers = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -43,7 +43,7 @@ class ApiRequest {
 }
 
 class ApiAdapter {
-    
+
     constructor() {
         this.apiRequest = new ApiRequest();
     }
@@ -56,17 +56,26 @@ class ApiAdapter {
         return this.apiRequest.request('auth/logout', 'POST');
     }
 
+
+    async listarTurmasOptions($name) {
+        return this.apiRequest.request(`classroom/option?search=${$name}`);
+    }
+
+    async listarAlunosOptions($name) {
+        return this.apiRequest.request(`student/option?search=${$name}`);
+    }
+
     async getDashInfo() {
         return this.apiRequest.request(`dashboard/quantity`);
     }
 
     async listarTurmas(params) {
         let url = `classroom/index?page=${params.page}`;
-    
+
         if (params.search) {
             url = `classroom/find?page=${params.page}&search=${encodeURIComponent(params.search)}`;
         }
-        
+
         return this.apiRequest.request(url);
     }
 
@@ -86,24 +95,24 @@ class ApiAdapter {
         return this.apiRequest.request(`classroom/delete/${id}`, 'DELETE');
     }
 
-   
+
     async matricularAluno(idAluno, idTurma) {
         return this.apiRequest.request('enrollment/create', 'POST', {
-            aluno_id: idAluno,
-            turma_id: idTurma
+            student_id: idAluno,
+            classroom_id: idTurma
         });
     }
-    
+
     async listarMatriculas(params) {
         let url = `enrollment/index?page=${params.page}`;
-    
+
         if (params.search && params.filter) {
             url = `enrollment/find?page=${params.page}&search=${encodeURIComponent(params.search)}&filter=${encodeURIComponent(params.filter)}`;
         }
-        
+
         return this.apiRequest.request(url);
     }
-    
+
     async cancelarMatricula(idMatricula) {
         return this.apiRequest.request(`enrollment/delete/${idMatricula}`, 'DELETE');
     }

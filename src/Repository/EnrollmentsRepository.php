@@ -2,12 +2,17 @@
 namespace Src\Repository;
 
 use PDO;
+use Src\Entities\Entity;
 
 class EnrollmentsRepository extends CrudRepository
 {
 
     protected string $table = "enrollments";
 
+    protected array $fields = [
+        'student_id',
+        'classroom_id'
+    ];
     public function listAll($page, $search = []): array
     {
         $limit = 10;
@@ -68,8 +73,9 @@ class EnrollmentsRepository extends CrudRepository
         ];
     }
 
-    public function create($data)
+    public function create(Entity $entity)
     {
+        $data = $entity->toArray();
         $count = $this->count([
             'student_id' => $data['student_id'],
             'classroom_id' => $data['classroom_id'],
@@ -77,7 +83,7 @@ class EnrollmentsRepository extends CrudRepository
         if ($count > 1) {
             throw new \InvalidArgumentException("Aluno ja esta matriculado");
         }
-        parent::create($data);
+        return parent::create($entity);
     }
 
 }

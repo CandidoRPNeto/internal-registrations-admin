@@ -36,6 +36,23 @@ class StudentRepository extends CrudRepository
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
+    
+
+    public function listOptions($search): ?array
+    {
+        $search = "%{$search}%";
+        $sql = "SELECT s.id, u.name 
+                FROM students s
+                INNER JOIN users u ON s.user_id = u.id 
+                WHERE u.name like :name
+                ORDER BY u.name ASC
+                LIMIT 5";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(":name", $search);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
 
     public function listAll($page, $search = []): array
     {

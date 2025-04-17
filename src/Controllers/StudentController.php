@@ -33,6 +33,11 @@ class StudentController
         return array_merge($user, $student);
     }
 
+    public function getOptionList($search)
+    {
+        return $this->studentRepository->listOptions($search);
+    }
+
     public function show($id)
     {
         return $this->studentRepository->read($id);

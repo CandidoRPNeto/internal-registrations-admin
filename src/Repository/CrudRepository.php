@@ -72,6 +72,7 @@ class CrudRepository
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+
     public function update(int $id, Entity $entity): array
     {
         $data = $entity->toArray();

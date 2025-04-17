@@ -187,7 +187,7 @@
                         campos.email.value = aluno.email;
                         campos.dataNascimento.value = aluno.birth_date;
                         campos.senha.required = false;
-                        const href = `/matriculas?search=${aluno.name}&filter=1&page=1`;
+                        const href = `/matriculas?search=${aluno.name}&filter=1&page=1&studentid=${aluno.id}`;
                         listaMatriculas.href = href;
                         listaMatriculas.style.display = 'inline-block';
                     } catch (erro) {

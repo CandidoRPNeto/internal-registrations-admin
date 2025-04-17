@@ -29,6 +29,11 @@ class ClassroomController
         return $this->repository->listAll($page, ['name' => $search]);
     }
 
+    public function getOptionList($search)
+    {
+        return $this->repository->listOptions($search);
+    }
+
     public function show($id)
     {
         return $this->repository->read($id);

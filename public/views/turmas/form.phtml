@@ -109,7 +109,7 @@
                         campos.id.value = turma.id;
                         campos.name.value = turma.name;
                         campos.description.value = turma.description;
-                        const href = `/matriculas?search=${turma.name}&filter=2&page=1`;
+                        const href = `/matriculas?search=${turma.name}&filter=2&page=1&classid=${turma.id}`;
                         listaMatriculas.href = href;
                         listaMatriculas.style.display = 'inline-block';
                         

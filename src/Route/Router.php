@@ -23,7 +23,7 @@ class Router
                     $route = preg_replace('/:\w+/', $this->request->id, $route);
                 }
                 if ($route === $this->request->route) {
-                    if (!in_array($route,   $this->withoutAuth)) {
+                    if (!in_array($route, $this->withoutAuth)) {
                         $this->authMiddleware();
                     }
                     $controller = $this->resolveController($routeController[0]);
@@ -44,20 +44,20 @@ class Router
 
     public function addRoutes($route, $controller, $method, $needAuth = true)
     {
-        if (!$needAuth) { 
-            $this->withoutAuth[] = $route; 
+        if (!$needAuth) {
+            $this->withoutAuth[] = $route;
         }
         $this->routes[$route] = [$controller, $method];
     }
 
     public function addResource($resourceName, $controller, $needAuth = true)
     {
-        $this->addRoutes("/{$resourceName}/create",  $controller, 'create', $needAuth);
-        $this->addRoutes("/{$resourceName}/update/:id",$controller, 'update', $needAuth);
+        $this->addRoutes("/{$resourceName}/create", $controller, 'create', $needAuth);
+        $this->addRoutes("/{$resourceName}/update/:id", $controller, 'update', $needAuth);
         $this->addRoutes("/{$resourceName}/delete/:id", $controller, 'delete', $needAuth);
-        $this->addRoutes("/{$resourceName}/index",$controller, 'index',  $needAuth);
-        $this->addRoutes("/{$resourceName}/find",$controller, 'search', $needAuth);
-        $this->addRoutes("/{$resourceName}/find/:id",$controller, 'show',   $needAuth);
+        $this->addRoutes("/{$resourceName}/index", $controller, 'index', $needAuth);
+        $this->addRoutes("/{$resourceName}/find", $controller, 'search', $needAuth);
+        $this->addRoutes("/{$resourceName}/find/:id", $controller, 'show', $needAuth);
     }
 
     private function sendToMethod($controller, $method): array
@@ -65,10 +65,14 @@ class Router
         $response = ['code' => 200];
         switch ($this->request->method) {
             case 'GET':
-                if($this->request->id)
+                
+                if ($method == 'getOptionList') {
+                    $response['data'] = call_user_func([$controller, $method], $this->request->search);
+                }
+                else if ($this->request->id)
                     $response['data'] = call_user_func([$controller, $method], $this->request->id);
-                else if($this->request->search)
-                    $response['data'] = call_user_func([$controller, $method], $this->request->page,$this->request->search,$this->request->filter);
+                else if ($this->request->search && $this->request->page)
+                    $response['data'] = call_user_func([$controller, $method], $this->request->page, $this->request->search, $this->request->filter);
                 else
                     $response['data'] = call_user_func([$controller, $method], $this->request->page);
                 break;
@@ -106,7 +110,7 @@ class Router
             $type = $param->getType();
             if ($type && !$type->isBuiltin()) {
                 $dependencyClass = $type->getName();
-                $dependencies[] = $this->resolveController($dependencyClass); 
+                $dependencies[] = $this->resolveController($dependencyClass);
             }
         }
 

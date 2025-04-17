@@ -13,6 +13,21 @@ class ClassroomRepository extends CrudRepository
         'description'
     ];
 
+    
+
+    public function listOptions($search): ?array
+    {
+        $sql = "SELECT id, name FROM {$this->table} 
+                WHERE name LIKE :name
+                ORDER BY name ASC
+                LIMIT 5";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue(":name", '%' . $search . '%', PDO::PARAM_STR);
+        $stmt->execute();
+    
+        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    }
+
     public function listAll($page, $search = []): array
     {
         $limit = 10;
