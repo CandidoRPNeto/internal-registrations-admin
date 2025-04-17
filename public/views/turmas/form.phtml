@@ -67,7 +67,7 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/js/adapters/ApiAdapter.js"></script>
-    <script src="/public/js/components/Validador.js"></script>
+    <script src="/public/js/components/Validator.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('form-turma');
@@ -135,7 +135,7 @@
                     descricao: campos.description.value.trim()
                 };
 
-                const resultado = Validador.validarFormulario(dados, regras);
+                const resultado = Validator.validarFormulario(dados, regras);
                 
                 return resultado;
             };

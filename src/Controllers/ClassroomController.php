@@ -24,9 +24,9 @@ class ClassroomController
         return $this->repository->update($id, $class);
     }
 
-    public function search($page, $search, $filter = 1)
+    public function search($page, $search)
     {
-       //TODO
+        return $this->repository->listAll($page, ['name' => $search]);
     }
 
     public function show($id)

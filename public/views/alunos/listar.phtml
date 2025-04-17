@@ -134,7 +134,7 @@
                         linha.innerHTML = `
                             <td class="text-start">${aluno.name}</td>
                             <td class="text-start">${aluno.email}</td>
-                            <td class="text-start">${aluno.cpf}</td>
+                            <td class="text-start">${aluno.cpf.replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4')}</td>
                             <td>
                                 <span class="badge ${badgeClass}">${aluno.enrollments_count} materia(s)</span>
                             </td>

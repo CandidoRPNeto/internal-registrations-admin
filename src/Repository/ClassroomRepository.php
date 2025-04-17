@@ -13,13 +13,22 @@ class ClassroomRepository extends CrudRepository
         'description'
     ];
 
-    public function listAll($page): array
+    public function listAll($page, $search = []): array
     {
         $limit = 10;
         $offset = ($page - 1) * $limit;
-        
-        $countSql = "SELECT COUNT(*) AS total FROM {$this->table}";
-        $countStmt = $this->conn->query($countSql);
+    
+        $where = '';
+        $params = [];
+    
+        if (!empty($search['name'])) {
+            $where = 'WHERE c.name LIKE :name';
+            $params[':name'] = '%' . $search['name'] . '%';
+        }
+
+        $countSql = "SELECT COUNT(*) AS total FROM {$this->table} c $where";
+        $countStmt = $this->conn->prepare($countSql);
+        $countStmt->execute($params);
         $totalItems = (int) $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
         $sql = "SELECT 
@@ -30,16 +39,16 @@ class ClassroomRepository extends CrudRepository
                         WHERE e.classroom_id = c.id
                     ) AS students_count
                 FROM classrooms c 
+                $where
                 ORDER BY name ASC
-                LIMIT :limit OFFSET :offset";
+                LIMIT $limit OFFSET $offset";
+    
         $stmt = $this->conn->prepare($sql);
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt->execute($params);
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
+    
         $totalPages = (int) ceil($totalItems / $limit);
-
+    
         return [
             'items' => $items,
             'total_pages' => $totalPages,

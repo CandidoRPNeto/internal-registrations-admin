@@ -27,6 +27,25 @@
                 </a>
             </div>
         </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-10">
+                        <label for="filtro-turma" class="form-label">Buscar Por Nome</label>
+                        <input type="text" id="termo-busca" class="form-control"
+                            placeholder="Buscar turma pelo nome...">
+                    </div>
+                    <div class="col-md-2">
+                        <div class="d-grid d-md-flex justify-content-md-end mt-4">
+                            <button type="button" class="btn btn-success" id="btn-buscar">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div id="alertas"></div>
 
@@ -124,21 +143,42 @@
         document.addEventListener('DOMContentLoaded', () => {
             let paginaAtual = 1;
             let totalPaginas = 1;
+            let termoBusca = null;
 
             const listaTurmas = document.getElementById('lista-turmas');
             const paginacao = document.getElementById('paginacao');
             const alertas = document.getElementById('alertas');
+            const btnBuscar = document.getElementById('btn-buscar');
+            const termoBuscaInput = document.getElementById('termo-busca');
 
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('page')) {
                 paginaAtual = parseInt(urlParams.get('page')) || 1;
             }
 
+            btnBuscar.addEventListener('click', () => {
+                termoBusca = termoBuscaInput.value.trim();
+                paginaAtual = 1;
+                const url = new URL(window.location);
+                if (termoBusca) {
+                    url.searchParams.set('search', termoBusca);
+                } else {
+                    url.searchParams.delete('search');
+                }
+                url.searchParams.set('page', 1);
+                window.history.pushState({}, '', url);
+
+                carregarTurmas();
+            });
+
             const carregarTurmas = async () => {
                 try {
                     listaTurmas.innerHTML = '<tr><td colspan="6" class="text-center">Carregando...</td></tr>';
 
-                    const resposta = await api.listarTurmas(paginaAtual);
+                    const resposta = await api.listarTurmas({
+                        page: paginaAtual,
+                        search: termoBusca
+                    });
 
                     if (resposta.length === 0) {
                         listaTurmas.innerHTML = '<tr><td colspan="6" class="text-center">Nenhuma turma encontrada</td></tr>';
@@ -146,7 +186,7 @@
                     }
 
                     listaTurmas.innerHTML = '';
-                    totalPaginas = resposta.total_pages;
+                    totalPaginas = resposta.total_pages || 1;
                     resposta.items.forEach(async (turma) => {
                         const badgeClass = turma.students_count > 0 ? 'bg-success' : 'bg-light text-dark';
                         const linha = document.createElement('tr');

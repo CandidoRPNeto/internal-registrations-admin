@@ -60,8 +60,14 @@ class ApiAdapter {
         return this.apiRequest.request(`dashboard/quantity`);
     }
 
-    async listarTurmas(pagina = 1) {
-        return this.apiRequest.request(`classroom/index?page=${pagina}`);
+    async listarTurmas(params) {
+        let url = `classroom/index?page=${params.page}`;
+    
+        if (params.search) {
+            url = `classroom/find?page=${params.page}&search=${encodeURIComponent(params.search)}`;
+        }
+        
+        return this.apiRequest.request(url);
     }
 
     async cadastrarTurma(dadosTurma) {

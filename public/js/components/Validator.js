@@ -1,4 +1,4 @@
-const Validador = {
+const Validator = {
     tamanhoMinimo(valor, tamanhoMinimo = 3) {
         return valor && valor.trim().length >= tamanhoMinimo;
     },
