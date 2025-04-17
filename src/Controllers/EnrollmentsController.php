@@ -14,15 +14,13 @@ class EnrollmentsController
     public function create($data)
     {
         $enrollment = new Enrollments($data);
-        $this->repository->create($enrollment->toArray());
-        return $enrollment->toArray();
+        return $this->repository->create($enrollment);
     }
 
     public function update($id, $data)
     {
         $enrollment = new Enrollments($data);
-        $this->repository->update($id, $enrollment->toArray());
-        return $enrollment->toArray();
+        return $this->repository->update($id, $enrollment);
     }
 
     public function search($page, $search, $filter = 1)

@@ -16,20 +16,20 @@ class StudentController
     {
         $data['role'] = 'STD';
         $user = new User($data);
-        $userId = $this->userRepository->create($user->toArray());
-        $data['user_id'] = $userId;
+        $user = $this->userRepository->create($user);
+        $data['user_id'] = $user['id'];
         $student = new Student($data);
-        $this->studentRepository->create($student->toArray());
-        return array_merge($user->toArray(), $student->toArray());
+        $student = $this->studentRepository->create($student);
+        return array_merge($user, $student);
     }
 
     public function update($id, $data)
     {
         $student = new Student($data);
-        $this->studentRepository->update($id, $student->toArray());
+        $student = $this->studentRepository->update($id, $student);
         $user = new User($data);
-        $this->userRepository->updateByStudent($id, $user->toArray());
-        return array_merge($user->toArray(true), $student->toArray());
+        $user = $this->userRepository->updateByStudent($id, $user->toArray());
+        return array_merge($user, $student);
     }
 
     public function show($id)

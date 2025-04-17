@@ -15,15 +15,13 @@ class ClassroomController
     public function create($data)
     {
         $class = new Classroom($data);
-        $this->repository->create($class->toArray());
-        return $class->toArray();
+        return $this->repository->create($class);
     }
 
     public function update($id, $data)
     {
         $class = new Classroom($data);
-        $this->repository->update($id, $class->toArray());
-        return $class->toArray();
+        return $this->repository->update($id, $class);
     }
 
     public function search($page, $search, $filter = 1)

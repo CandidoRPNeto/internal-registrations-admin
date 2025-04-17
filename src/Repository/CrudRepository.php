@@ -42,8 +42,9 @@ class CrudRepository
         return $result ? (int)$result['total'] : 0;
     }
 
-    public function create($data)
+    public function create(Entity $entity)
     {
+        $data = $entity->toArray();
         $fields = $this->fields;
         $columns = implode(', ', $fields);
         $placeholders = ':' . implode(', :', $fields);
@@ -56,7 +57,9 @@ class CrudRepository
         }
 
         $stmt->execute();
-        return $this->conn->lastInsertId();
+        $data = $entity->toArray(true);
+        $data['id'] = $this->conn->lastInsertId();
+        return $data;
     }
 
     public function read(int $id): ?array
@@ -69,14 +72,15 @@ class CrudRepository
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function update(int $id, array $data): bool
+    public function update(int $id, Entity $entity): array
     {
+        $data = $entity->toArray();
         $fields = $this->fields;
         
         $validFields = array_filter($fields, fn($f) => array_key_exists($f, $data));
     
         if (empty($validFields)) {
-            return false;
+            throw new \InvalidArgumentException("Campos invalidos");
         }
         
         $set = implode(', ', array_map(fn($f) => "$f = :$f", $validFields));
@@ -89,7 +93,7 @@ class CrudRepository
         }
     
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        return $data;
     }
 
     public function delete(int $id): bool
