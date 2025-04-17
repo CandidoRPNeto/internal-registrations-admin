@@ -1,28 +1,28 @@
 <?php
 namespace Src\Controllers;
 
+use Src\Entities\Enrollments;
 use Src\Repository\EnrollmentsRepository;
 
 class EnrollmentsController
 {
-    protected $repository;
-    public function __construct()
+    
+    public function __construct(protected EnrollmentsRepository $repository)
     {
-        $this->repository = new EnrollmentsRepository();
     }
 
     public function create($data)
     {
-        $obj = $this->repository->create($data);
-        return [
-            'code' => 200,
-            'data' => $obj
-        ];
+        $enrollment = new Enrollments($data);
+        $this->repository->create($enrollment->toArray());
+        return $enrollment->toArray();
     }
 
     public function update($id, $data)
     {
-        return $this->repository->update($id, $data);
+        $enrollment = new Enrollments($data);
+        $this->repository->update($id, $enrollment->toArray());
+        return $enrollment->toArray();
     }
 
     public function search($page, $search, $filter = 1)

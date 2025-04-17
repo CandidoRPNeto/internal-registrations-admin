@@ -1,16 +1,18 @@
 <?php
 namespace Src\Repository;
 
-use Src\Models\{Student, User};
 use PDO;
 
 class StudentRepository extends CrudRepository
 {
 
-    public function __construct()
-    {
-        parent::__construct(new Student());
-    }
+    protected string $table = "students";
+
+    protected array $fields = [
+        'birth_date',
+        'cpf',
+        'user_id'
+    ];
 
     public function read(int $id): ?array
     {

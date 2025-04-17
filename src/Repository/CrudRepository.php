@@ -1,24 +1,29 @@
 <?php
 namespace Src\Repository;
 
-use Src\Models\Model;
 use PDO;
-use Database;
+use Src\Config\Database;
+use Src\Db\MySQLClient;
+use Src\Entities\Entity;
 
 class CrudRepository
 {
     protected PDO $conn;
 
-    public function __construct(protected Model $model)
+    protected string $table;
+
+    protected array $fields;
+
+    public function __construct()
     {
         require_once __DIR__ . '/../config/database.php';
-        $database = new Database();
+        $database = new Database(new MySQLClient());
         $this->conn = $database->getConnection();
     }
 
     public function count($where = [])
     {
-        $sql = "SELECT COUNT(*) AS total FROM {$this->model->getTableName()}";
+        $sql = "SELECT COUNT(*) AS total FROM {$this->table}";
         $params = [];
     
         if (!empty($where)) {
@@ -37,13 +42,13 @@ class CrudRepository
         return $result ? (int)$result['total'] : 0;
     }
 
-    public function create(array $data)
+    public function create($data)
     {
-        $fields = $this->model->getFields();
+        $fields = $this->fields;
         $columns = implode(', ', $fields);
         $placeholders = ':' . implode(', :', $fields);
 
-        $sql = "INSERT INTO {$this->model->getTableName()} ($columns) VALUES ($placeholders)";
+        $sql = "INSERT INTO {$this->table} ($columns) VALUES ($placeholders)";
         $stmt = $this->conn->prepare($sql);
 
         foreach ($fields as $field) {
@@ -56,7 +61,7 @@ class CrudRepository
 
     public function read(int $id): ?array
     {
-        $sql = "SELECT * FROM {$this->model->getTableName()} WHERE id = :id";
+        $sql = "SELECT * FROM {$this->table} WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(":id", $id);
         $stmt->execute();
@@ -66,7 +71,7 @@ class CrudRepository
 
     public function update(int $id, array $data): bool
     {
-        $fields = $this->model->getFields();
+        $fields = $this->fields;
         
         $validFields = array_filter($fields, fn($f) => array_key_exists($f, $data));
     
@@ -75,7 +80,7 @@ class CrudRepository
         }
         
         $set = implode(', ', array_map(fn($f) => "$f = :$f", $validFields));
-        $sql = "UPDATE {$this->model->getTableName()} SET $set WHERE id = :id";
+        $sql = "UPDATE {$this->table} SET $set WHERE id = :id";
     
         $stmt = $this->conn->prepare($sql);
     
@@ -89,7 +94,7 @@ class CrudRepository
 
     public function delete(int $id): bool
     {
-        $sql = "DELETE FROM {$this->model->getTableName()} WHERE id = :id";
+        $sql = "DELETE FROM {$this->table} WHERE id = :id";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(":id", $id);
         return $stmt->execute();
@@ -100,12 +105,12 @@ class CrudRepository
         $limit = 10;
         $offset = ($page - 1) * $limit;
         
-        $countSql = "SELECT COUNT(*) AS total FROM {$this->model->getTableName()}";
+        $countSql = "SELECT COUNT(*) AS total FROM {$this->table}";
         $countStmt = $this->conn->query($countSql);
         $totalItems = (int) $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
-        $sql = "SELECT * FROM {$this->model->getTableName()} 
-                ORDER BY {$this->model->getOrdenation()}
+        $sql = "SELECT * FROM {$this->table} 
+                ORDER BY name ASC
                 LIMIT :limit OFFSET :offset";
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);

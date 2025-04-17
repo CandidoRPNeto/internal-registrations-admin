@@ -1,16 +1,12 @@
 <?php
 namespace Src\Repository;
 
-use Src\Models\Enrollments;
 use PDO;
 
 class EnrollmentsRepository extends CrudRepository
 {
 
-    public function __construct()
-    {
-        parent::__construct(new Enrollments());
-    }
+    protected string $table = "enrollments";
 
     public function listAll($page, $search = []): array
     {
@@ -40,7 +36,9 @@ class EnrollmentsRepository extends CrudRepository
 
         $sql = "SELECT 
                     e.id,
+                    s.id as student_id,
                     u.name as student,
+                    c.id as classroom_id,
                     c.name as classroom,
                     e.created_at
                     FROM enrollments e
@@ -48,7 +46,7 @@ class EnrollmentsRepository extends CrudRepository
                     JOIN students s ON e.student_id = s.id
                     JOIN users u ON s.user_id = u.id
                 $where
-                ORDER BY e.created_at DESC
+                ORDER BY u.name ASC, c.name ASC
                 LIMIT :limit OFFSET :offset";
 
         $stmt = $this->conn->prepare($sql);
@@ -70,5 +68,16 @@ class EnrollmentsRepository extends CrudRepository
         ];
     }
 
+    public function create($data)
+    {
+        $count = $this->count([
+            'student_id' => $data['student_id'],
+            'classroom_id' => $data['classroom_id'],
+        ]);
+        if ($count > 1) {
+            throw new \InvalidArgumentException("Aluno ja esta matriculado");
+        }
+        parent::create($data);
+    }
 
 }

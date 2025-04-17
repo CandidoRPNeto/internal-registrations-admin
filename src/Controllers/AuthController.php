@@ -1,31 +1,24 @@
 <?php
 namespace Src\Controllers;
 
+use Src\Entities\Auth;
 use Src\Repository\AuthRepository;
-use Src\Request\LoginRequest;
 
 session_start();
 class AuthController
 {
-    protected $repository;
-    public function __construct()
+    
+    public function __construct(protected AuthRepository $repository)
     {
-        $this->repository = new AuthRepository();
     }
     public function login($data): array
     {
-        LoginRequest::validate($data);
-        $login = $this->repository->login($data['email'], $data['password']);
+        $credentials = new Auth($data);
+        $login = $this->repository->login($credentials);
         if ($login) {
             $_SESSION['token'] = $login['token'];
-            return [
-                'code' => 200,
-                'data' => $login
-            ];
+            return $login;
         }
-        return [
-            'code' => 405,
-            'data' => ['message' => 'login ou senha incorretos']
-        ];
+        return ['message' => 'login ou senha incorretos'];
     }
 }

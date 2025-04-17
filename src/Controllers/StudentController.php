@@ -1,41 +1,35 @@
 <?php
 namespace Src\Controllers;
 
+use Src\Entities\Student;
+use Src\Entities\User;
 use Src\Repository\{UserRepository, StudentRepository};
 
 class StudentController
 {
-    protected $studentRepository;
-    protected $userRepository;
 
-    public function __construct()
+    public function __construct(protected StudentRepository $studentRepository,protected UserRepository $userRepository)
     {
-        $this->studentRepository = new StudentRepository();
-        $this->userRepository = new UserRepository();
     }
 
     public function create($data)
     {
         $data['role'] = 'STD';
-        $data['password'] = password_hash($data['password'], PASSWORD_DEFAULT);
-        $user = $this->userRepository->create($data);
-        $data['user_id'] = $user;
-        $student = $this->studentRepository->create($data);
-        return [
-            'code' => 200,
-            'data' => $student
-        ];
+        $user = new User($data);
+        $userId = $this->userRepository->create($user->toArray());
+        $data['user_id'] = $userId;
+        $student = new Student($data);
+        $this->studentRepository->create($student->toArray());
+        return array_merge($user->toArray(), $student->toArray());
     }
 
     public function update($id, $data)
     {
-        $student = $this->studentRepository->update($id, $data);
-        
-        $user = $this->userRepository->updateByStudent($id, $data);
-        return [
-            'code' => 200,
-            'data' => $student
-        ];
+        $student = new Student($data);
+        $this->studentRepository->update($id, $student->toArray());
+        $user = new User($data);
+        $this->userRepository->updateByStudent($id, $user->toArray());
+        return array_merge($user->toArray(true), $student->toArray());
     }
 
     public function show($id)

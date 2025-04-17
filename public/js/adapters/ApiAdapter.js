@@ -1,4 +1,5 @@
-class ApiAdapter {
+class ApiRequest {
+    
     constructor(baseUrl = 'http://localhost:8000/api') {
         this.baseUrl = baseUrl;
     }
@@ -39,81 +40,93 @@ class ApiAdapter {
             throw error;
         }
     }
+}
+
+class ApiAdapter {
+    
+    constructor() {
+        this.apiRequest = new ApiRequest();
+    }
 
     async login(email, password) {
-        return this.request('auth/login', 'POST', { email, password }, false);
+        return this.apiRequest.request('auth/login', 'POST', { email, password }, false);
     }
 
     async logout() {
-        return this.request('auth/logout', 'POST');
+        return this.apiRequest.request('auth/logout', 'POST');
     }
 
     async getDashInfo() {
-        return this.request(`dashboard/quantity`);
+        return this.apiRequest.request(`dashboard/quantity`);
     }
 
     async listarTurmas(pagina = 1) {
-        return this.request(`classroom?page=${pagina}`);
+        return this.apiRequest.request(`classroom/index?page=${pagina}`);
     }
 
     async cadastrarTurma(dadosTurma) {
-        return this.request('classroom', 'POST', dadosTurma);
+        return this.apiRequest.request('classroom/create', 'POST', dadosTurma);
     }
 
     async obterTurma(id) {
-        return this.request(`classroom/${id}`);
+        return this.apiRequest.request(`classroom/find/${id}`);
     }
 
     async atualizarTurma(id, dadosTurma) {
-        return this.request(`classroom/${id}`, 'PUT', dadosTurma);
+        return this.apiRequest.request(`classroom/update/${id}`, 'PUT', dadosTurma);
     }
 
     async removerTurma(id) {
-        return this.request(`classroom/${id}`, 'DELETE');
+        return this.apiRequest.request(`classroom/delete/${id}`, 'DELETE');
     }
 
-    
+   
     async matricularAluno(idAluno, idTurma) {
-        return this.request('enrollment', 'POST', {
+        return this.apiRequest.request('enrollment/create', 'POST', {
             aluno_id: idAluno,
             turma_id: idTurma
         });
     }
     
     async listarMatriculas(params) {
-        let url = `enrollment?page=${params.page}`;
+        let url = `enrollment/index?page=${params.page}`;
     
         if (params.search && params.filter) {
-            url += `&search=${encodeURIComponent(params.search)}&filter=${encodeURIComponent(params.filter)}`;
+            url = `enrollment/find?page=${params.page}&search=${encodeURIComponent(params.search)}&filter=${encodeURIComponent(params.filter)}`;
         }
         
-        return this.request(url);
+        return this.apiRequest.request(url);
     }
     
     async cancelarMatricula(idMatricula) {
-        return this.request(`enrollment/${idMatricula}`, 'DELETE');
+        return this.apiRequest.request(`enrollment/delete/${idMatricula}`, 'DELETE');
     }
 
-
     async listarAlunos(pagina = 1, termoBusca = '') {
-        const endpoint = `student?page=${pagina}&search=${termoBusca}`;
-        return this.request(endpoint);
+        let endpoint;
+        if (termoBusca !== '') {
+            endpoint = `student/find?page=${pagina}&search=${termoBusca}&filter=`;
+        }
+        else {
+            endpoint = `student/index?page=${pagina}`;
+        }
+        return this.apiRequest.request(endpoint);
     }
 
     async obterAluno(id) {
-        return this.request(`student/${id}`);
+        return this.apiRequest.request(`student/find/${id}`);
     }
 
     async cadastrarAluno(dadosAluno) {
-        return this.request('student', 'POST', dadosAluno);
+        return this.apiRequest.request('student/create', 'POST', dadosAluno);
     }
 
     async atualizarAluno(id, dadosAluno) {
-        return this.request(`student/${id}`, 'PUT', dadosAluno);
+        return this.apiRequest.request(`student/update/${id}`, 'PUT', dadosAluno);
     }
 
     async removerAluno(id) {
-        return this.request(`student/${id}`, 'DELETE');
+        return this.apiRequest.request(`student/delete/${id}`, 'DELETE');
     }
 
 

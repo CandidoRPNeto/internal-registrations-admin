@@ -2,26 +2,27 @@
 namespace Src\Repository;
 
 use PDO;
-use Src\Models\User;
-use Database;
+use Src\Db\MySQLClient;
 use Src\Helpers\JwtHelper;
+use src\Config\Database;
+use Src\Entities\Auth;
 
 class AuthRepository
 {
     private PDO $conn;
-    private User $model;
 
     public function __construct()
     {
         require_once __DIR__ . '/../config/database.php';
-        $database = new Database();
+        $database = new Database(new MySQLClient());
         $this->conn = $database->getConnection();
-        $this->model = new User();
     }
 
-    public function login(string $email, string $password): array|false
+    public function login(Auth $credentials): array|false
     {
-        $stmt = $this->conn->prepare("SELECT * FROM " . $this->model->getTableName() . " WHERE email = :email");
+        $password = $credentials->getPassword();
+        $email = $credentials->getEmail();
+        $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email);
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);

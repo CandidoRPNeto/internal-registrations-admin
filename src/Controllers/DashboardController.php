@@ -1,26 +1,20 @@
 <?php
 namespace Src\Controllers;
 
-use Src\Models\Classroom;
-use Src\Models\Enrollments;
-use Src\Models\User;
-use Src\Repository\CrudRepository;
+use Src\Repository\{ClassroomRepository, EnrollmentsRepository, UserRepository};
 
 session_start();
 class DashboardController
 {
     public function getInfo(): array
     {
-        $classroomRepository = new CrudRepository(new Classroom());
-        $enrollmentsRepository = new CrudRepository(new Enrollments());
-        $userRepository = new CrudRepository(new User());
+        $classroomRepository = new ClassroomRepository();
+        $enrollmentsRepository = new EnrollmentsRepository();
+        $userRepository = new UserRepository();
         return [
-            'code' => 200,
-            'data' => [
-                'students' => $userRepository->count(['role' => 'STD']), 
-                'class' => $classroomRepository->count(), 
-                'enrollments' => $enrollmentsRepository->count()
-            ]
+            'students' => $userRepository->count(['role' => 'STD']),
+            'class' => $classroomRepository->count(),
+            'enrollments' => $enrollmentsRepository->count()
         ];
     }
 }

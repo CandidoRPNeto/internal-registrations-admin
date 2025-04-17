@@ -53,7 +53,7 @@ jdbc:mysql://localhost:3306/meubanco?allowPublicKeyRetrieval=true&useSSL=false
 ### Modificando credenciais
 Se quiser usar credenciais diferentes, edite o arquivo:
 ```bash
-src/config/database.php
+src/db/MySQLClient.php
 ```
 
 ## Rodando o projeto
