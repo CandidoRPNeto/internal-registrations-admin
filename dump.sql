@@ -9,31 +9,31 @@ USE meubanco;
 -- ETAPA 3: Criando as tabelas (Ps: talvez seja necessario rodar uma por uma)
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    email VARCHAR(100) UNIQUE,
-    password VARCHAR(255),
-    role VARCHAR(3)
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(3) NOT NULL
 );
 
 CREATE TABLE classrooms (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    description TEXT
+    name VARCHAR(100) NOT NULL,
+    description TEXT NOT NULL
 );
 
 CREATE TABLE students (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    birth_date DATE,
-    cpf VARCHAR(14) UNIQUE,
-    user_id INT,
+    birth_date DATE NOT NULL,
+    cpf VARCHAR(14) NOT NULL UNIQUE,
+    user_id INT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE enrollments (
     id INT PRIMARY KEY AUTO_INCREMENT,
-    student_id INT,
-    classroom_id INT,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    student_id INT NOT NULL,
+    classroom_id INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
     FOREIGN KEY (classroom_id) REFERENCES classrooms(id) ON DELETE CASCADE
 );
