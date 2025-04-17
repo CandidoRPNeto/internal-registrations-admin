@@ -87,12 +87,13 @@ class CrudRepository
         $sql = "UPDATE {$this->table} SET $set WHERE id = :id";
     
         $stmt = $this->conn->prepare($sql);
-    
         foreach ($validFields as $field) {
             $stmt->bindValue(":$field", $data[$field]);
         }
-    
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+        $data = $entity->toArray(true);
+        $data['id'] = $id;
         return $data;
     }
 

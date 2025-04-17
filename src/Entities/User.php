@@ -18,7 +18,8 @@ class User implements Entity
         $this->setName($data["name"]);
         $this->setEmail($data["email"]);
         $this->setPassword($data["password"]);
-        $this->setRole($data["role"]);
+        $role = $data["role"] ?? 'STD';
+        $this->setRole($role);
     }
 
     public function toArray($hidden = false): array
@@ -32,7 +33,7 @@ class User implements Entity
         if ($hidden) {
             unset($user['password']);
         }
-        return [];
+        return $user;
     }
 
     public function getName(): string
@@ -97,11 +98,11 @@ class User implements Entity
 
     public function setRole(string $role): void
     {
-        $role = trim(string: $role);
+        $role = trim($role);
         if (empty($role)) {
             throw new \InvalidArgumentException("Campo precisa estar preenchido");
         }
-        if ($role !== 'STD' || $role !== 'ADM') {
+        if ($role !== 'STD' && $role !== 'ADM') {
             throw new \InvalidArgumentException("Role invalida");
         }
         $this->role = $role;

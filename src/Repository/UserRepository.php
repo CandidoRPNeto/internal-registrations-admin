@@ -2,6 +2,7 @@
 namespace Src\Repository;
 
 use PDO;
+use Src\Entities\Entity;
 
 class UserRepository extends CrudRepository
 {
@@ -15,14 +16,24 @@ class UserRepository extends CrudRepository
         'role'
     ];
     
-    public function updateByStudent(int $id, array $data): bool
+    public function updateByStudent(int $id, Entity $entity): array
     {
+        $data = $entity->toArray();
         $fields = $this->fields; 
         $validFields = array_filter($fields, fn($f) => array_key_exists($f, $data));
     
         if (empty($validFields)) {
-            return false;
+            throw new \InvalidArgumentException("Campos invalidos");
         }
+        $stmt = $this->conn->prepare("
+            SELECT u.id 
+            FROM users u 
+            JOIN students s ON u.id = s.user_id 
+            WHERE s.id = :student_id
+        ");
+        $stmt->execute(['student_id' => $id]);
+        $userId = $stmt->fetchColumn();
+
     
         $set = implode(', ', array_map(fn($f) => "u.$f = :$f", $validFields));
         $sql = "UPDATE users u
@@ -37,7 +48,10 @@ class UserRepository extends CrudRepository
         }
     
         $stmt->bindValue(':student_id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        $stmt->execute();
+        $data = $entity->toArray(true);
+        $data['id'] = $userId;
+        return $data; 
     }
 
     

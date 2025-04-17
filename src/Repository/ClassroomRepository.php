@@ -9,7 +9,6 @@ class ClassroomRepository extends CrudRepository
     protected string $table = "classrooms";
 
     protected array $fields = [
-        'id',
         'name',
         'description'
     ];

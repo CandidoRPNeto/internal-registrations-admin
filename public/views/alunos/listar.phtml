@@ -12,8 +12,9 @@
 <body>
     <div class="container my-4">
         <div class="row mb-4">
-            <div class="col-md-9">
-                <h1>Alunos</h1>
+            <div class="col-md-9 d-flex align-items-center gap-2">
+                <a href="/dashboard" class="h4 text-secondary text-decoration-none mb-0">dashboard/</a>
+                <h1 class="mb-0">Alunos</h1>
             </div>
             <div class="col-md-1 text-end">
                 <button onclick="history.back()" class="btn btn-secondary">
@@ -32,7 +33,8 @@
                 <div class="row g-3">
                     <div class="col-md-10">
                         <label for="filtro-turma" class="form-label">Buscar Por Nome</label>
-                        <input type="text" id="termo-busca" class="form-control" placeholder="Buscar matricula pelo nome...">
+                        <input type="text" id="termo-busca" class="form-control"
+                            placeholder="Buscar matricula pelo nome...">
                     </div>
                     <div class="col-md-2">
                         <div class="d-grid d-md-flex justify-content-md-end mt-4">
@@ -159,7 +161,7 @@
 
             const renderizarPaginacao = () => {
                 paginacao.innerHTML = '';
-                
+
                 const btnAnterior = document.createElement('li');
                 btnAnterior.className = `page-item ${paginaAtual === 1 ? 'disabled' : ''}`;
                 btnAnterior.innerHTML = `
@@ -190,7 +192,7 @@
 
             btnBuscar.addEventListener('click', () => {
                 termoBusca = termoBuscaInput.value.trim();
-                paginaAtual = 1; 
+                paginaAtual = 1;
                 const url = new URL(window.location);
                 if (termoBusca) {
                     url.searchParams.set('search', termoBusca);

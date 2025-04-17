@@ -25,10 +25,11 @@ class StudentController
 
     public function update($id, $data)
     {
+        $user = new User($data);
+        $user = $this->userRepository->updateByStudent($id, $user);
+        $data['user_id'] = $user['id'];
         $student = new Student($data);
         $student = $this->studentRepository->update($id, $student);
-        $user = new User($data);
-        $user = $this->userRepository->updateByStudent($id, $user->toArray());
         return array_merge($user, $student);
     }
 
